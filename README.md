@@ -55,3 +55,7 @@ trabalho_devops/
 ├── requirements.txt
 ├── README.md
 └── app.log
+
+## Demonstração de Pull Request
+
+Alteração realizada para demonstrar o processo de revisão e integração de código utilizando GitHub.
