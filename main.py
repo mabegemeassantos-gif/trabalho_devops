@@ -1,3 +1,4 @@
+
 import json
 import logging
 import time
@@ -27,72 +28,77 @@ def processar_transacoes():
 
     logger.info("Iniciando processamento das transações.")
 
-    # Inicializa o banco de dados
-    inicializar_banco()
+    try:
+        # Inicializa o banco de dados
+        inicializar_banco()
 
-    # Lê os dados do arquivo JSON
-    with open("dados_processamento.json", "r", encoding="utf-8") as arquivo:
-        transacoes = json.load(arquivo)
+        # Lê os dados do arquivo JSON
+        with open("dados_processamento.json", "r", encoding="utf-8") as arquivo:
+            transacoes = json.load(arquivo)
 
-    aprovadas = 0
-    rejeitadas = 0
+        aprovadas = 0
+        rejeitadas = 0
 
-    for transacao in transacoes:
+        for transacao in transacoes:
 
-        valida, motivo = validar_transacao(transacao)
+            valida, motivo = validar_transacao(transacao)
 
-        if valida:
-            desconto, valor_final = calcular_desconto_e_final(
-                transacao["valor_bruto"],
-                transacao["idade"],
-                transacao["categoria"]
-            )
+            if valida:
+                desconto, valor_final = calcular_desconto_e_final(
+                    transacao["valor_bruto"],
+                    transacao["idade"],
+                    transacao["categoria"]
+                )
 
-            dados = {
-                **transacao,
-                "valor_final": valor_final,
-                "status": "APROVADO",
-                "motivo_rejeicao": None
-            }
+                dados = {
+                    **transacao,
+                    "valor_final": valor_final,
+                    "status": "APROVADO",
+                    "motivo_rejeicao": None
+                }
 
-            aprovadas += 1
+                aprovadas += 1
 
-            logger.info(
-                "Transação %s aprovada. Desconto: R$ %.2f",
-                transacao["id_transacao"],
-                desconto
-            )
+                logger.info(
+                    "Transação %s aprovada. Desconto: R$ %.2f",
+                    transacao["id_transacao"],
+                    desconto
+                )
 
-        else:
-            dados = {
-                **transacao,
-                "valor_final": None,
-                "status": "REJEITADO",
-                "motivo_rejeicao": motivo
-            }
+            else:
+                dados = {
+                    **transacao,
+                    "valor_final": None,
+                    "status": "REJEITADO",
+                    "motivo_rejeicao": motivo
+                }
 
-            rejeitadas += 1
+                rejeitadas += 1
 
-            logger.warning(
-                "Transação %s rejeitada: %s",
-                transacao["id_transacao"],
-                motivo
-            )
+                logger.warning(
+                    "Transação %s rejeitada: %s",
+                    transacao["id_transacao"],
+                    motivo
+                )
 
-        salvar_transacao(dados)
+            salvar_transacao(dados)
 
-    fim = time.perf_counter()
-    tempo_total = (fim - inicio) * 1000
+        fim = time.perf_counter()
+        tempo_total = (fim - inicio) * 1000
 
-    total = aprovadas + rejeitadas
+        total = aprovadas + rejeitadas
 
-    print("\n===== RESUMO DO PROCESSAMENTO =====")
-    print(f"Total processado: {total}")
-    print(f"Transações aprovadas: {aprovadas}")
-    print(f"Transações rejeitadas: {rejeitadas}")
-    print(f"Tempo total: {tempo_total:.2f} ms")
+        print("\n===== RESUMO DO PROCESSAMENTO =====")
+        print(f"Total processado: {total}")
+        print(f"Transações aprovadas: {aprovadas}")
+        print(f"Transações rejeitadas: {rejeitadas}")
+        print(f"Tempo total: {tempo_total:.2f} ms")
 
-    logger.info("Processamento finalizado.")
+        logger.info("Processamento finalizado.")
+
+    except Exception:
+        logger.exception("Erro durante o processamento das transações.")
+        raise
 
 
 if __name__ == "__main__":
