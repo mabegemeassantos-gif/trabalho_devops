@@ -1,16 +1,26 @@
 
 import sqlite3
-import pytest
+import uuid
 
 from database import (
+    conectar_banco,
     inicializar_banco,
     salvar_transacao,
     buscar_transacao_por_id
 )
 
 
-def test_salvar_e_buscar_transacao(tmp_path):
-    caminho_banco = str(tmp_path / "teste.db")
+def criar_banco_memoria():
+    """Cria um banco SQLite em memória compartilhada."""
+    identificador = uuid.uuid4().hex
+
+    return (
+        f"file:teste_{identificador}?mode=memory&cache=shared"
+    )
+
+
+def test_salvar_e_buscar_transacao():
+    caminho_banco = criar_banco_memoria()
 
     inicializar_banco(caminho_banco)
 
@@ -38,8 +48,8 @@ def test_salvar_e_buscar_transacao(tmp_path):
     assert "cliente" not in resultado
 
 
-def test_buscar_transacao_inexistente(tmp_path):
-    caminho_banco = str(tmp_path / "teste.db")
+def test_buscar_transacao_inexistente():
+    caminho_banco = criar_banco_memoria()
 
     inicializar_banco(caminho_banco)
 
@@ -50,10 +60,10 @@ def test_buscar_transacao_inexistente(tmp_path):
     assert resultado is None
 
 
-def test_dual_write_durante_expand(tmp_path):
-    caminho_banco = str(tmp_path / "teste_expand.db")
+def test_dual_write_durante_expand():
+    caminho_banco = criar_banco_memoria()
 
-    conexao = sqlite3.connect(caminho_banco)
+    conexao = conectar_banco(caminho_banco)
     cursor = conexao.cursor()
 
     # Simula a estrutura do banco após a migração Expand.

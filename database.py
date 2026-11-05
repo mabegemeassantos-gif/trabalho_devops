@@ -3,8 +3,23 @@ import sqlite3
 from datetime import datetime
 
 
+# Mantém as conexões principais dos bancos em memória abertas.
+# Isso permite que diferentes funções acessem o mesmo banco.
+_conexoes_memoria = {}
+
+
 def conectar_banco(db_path="sistema.db"):
     """Cria a conexão com o banco de dados SQLite."""
+
+    if db_path.startswith("file:") and "mode=memory" in db_path:
+        if db_path not in _conexoes_memoria:
+            _conexoes_memoria[db_path] = sqlite3.connect(
+                db_path,
+                uri=True
+            )
+
+        return sqlite3.connect(db_path, uri=True)
+
     return sqlite3.connect(db_path)
 
 
@@ -14,23 +29,26 @@ def inicializar_banco(db_path="sistema.db"):
     conexao = conectar_banco(db_path)
     cursor = conexao.cursor()
 
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS transacoes (
-            id_transacao TEXT PRIMARY KEY,
-            primeiro_nome TEXT,
-            sobrenome TEXT,
-            cpf TEXT NOT NULL,
-            idade INTEGER,
-            valor_bruto REAL,
-            valor_final REAL,
-            status TEXT,
-            motivo_rejeicao TEXT,
-            data_processamento TIMESTAMP
-        )
-    """)
+    try:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS transacoes (
+                id_transacao TEXT PRIMARY KEY,
+                primeiro_nome TEXT,
+                sobrenome TEXT,
+                cpf TEXT NOT NULL,
+                idade INTEGER,
+                valor_bruto REAL,
+                valor_final REAL,
+                status TEXT,
+                motivo_rejeicao TEXT,
+                data_processamento TIMESTAMP
+            )
+        """)
 
-    conexao.commit()
-    conexao.close()
+        conexao.commit()
+
+    finally:
+        conexao.close()
 
 
 def salvar_transacao(dados: dict, db_path="sistema.db"):
