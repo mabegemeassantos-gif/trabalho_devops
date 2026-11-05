@@ -1,3 +1,4 @@
+
 from regra_negocio import (
     validar_transacao,
     calcular_desconto_e_final
@@ -31,11 +32,37 @@ def test_valor_negativo():
     assert resultado is False
 
 
+def test_valor_zero():
+    transacao = {
+        "valor_bruto": 0,
+        "idade": 25,
+        "cpf": "12345678901",
+        "categoria": "roupas"
+    }
+
+    resultado, mensagem = validar_transacao(transacao)
+
+    assert resultado is False
+
+
 def test_cpf_invalido():
     transacao = {
         "valor_bruto": 100,
         "idade": 25,
         "cpf": "12345",
+        "categoria": "roupas"
+    }
+
+    resultado, mensagem = validar_transacao(transacao)
+
+    assert resultado is False
+
+
+def test_cpf_com_letras():
+    transacao = {
+        "valor_bruto": 100,
+        "idade": 25,
+        "cpf": "1234567890A",
         "categoria": "roupas"
     }
 
@@ -55,6 +82,67 @@ def test_menor_comprando_eletronicos():
     resultado, mensagem = validar_transacao(transacao)
 
     assert resultado is False
+
+
+def test_idade_zero_valida():
+    transacao = {
+        "valor_bruto": 100,
+        "idade": 0,
+        "cpf": "12345678901",
+        "categoria": "roupas"
+    }
+
+    resultado, mensagem = validar_transacao(transacao)
+
+    assert resultado is True
+
+
+def test_idade_120_valida():
+    transacao = {
+        "valor_bruto": 100,
+        "idade": 120,
+        "cpf": "12345678901",
+        "categoria": "roupas"
+    }
+
+    resultado, mensagem = validar_transacao(transacao)
+
+    assert resultado is True
+
+
+def test_idade_negativa():
+    transacao = {
+        "valor_bruto": 100,
+        "idade": -1,
+        "cpf": "12345678901",
+        "categoria": "roupas"
+    }
+
+    resultado, mensagem = validar_transacao(transacao)
+
+    assert resultado is False
+
+
+def test_idade_acima_do_limite():
+    transacao = {
+        "valor_bruto": 100,
+        "idade": 121,
+        "cpf": "12345678901",
+        "categoria": "roupas"
+    }
+
+    resultado, mensagem = validar_transacao(transacao)
+
+    assert resultado is False
+
+
+def test_desconto_59_anos():
+    desconto, valor_final = calcular_desconto_e_final(
+        100, 59, "roupas"
+    )
+
+    assert desconto == 0
+    assert valor_final == 100
 
 
 def test_desconto_idoso():
