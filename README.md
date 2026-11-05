@@ -10,7 +10,7 @@ O projeto também utiliza práticas de DevOps, incluindo testes automatizados, v
 
 ## 2. Tecnologias utilizadas
 
-- Python
+- Python 3.10 ou superior
 - SQLite
 - Alembic
 - SQLAlchemy
@@ -65,6 +65,8 @@ trabalho_devops/
 
 ## 5. Instalação e configuração
 
+O projeto requer Python 3.10 ou superior.
+
 Clone o repositório:
 
 ```bash
@@ -105,7 +107,11 @@ Foi aplicado o padrão **Expand-Contract**, dividido em três etapas:
 - **Backfill:** transfere os nomes dos registros existentes para os novos campos.
 - **Contract:** remove o campo antigo `cliente` após a migração dos dados.
 
+Durante a etapa Backfill, os registros existentes são atualizados, preenchendo os campos `primeiro_nome` e `sobrenome` com base nas informações armazenadas anteriormente no campo `cliente`.
+
 Durante a etapa Expand, foi implementado o conceito de Dual Write, permitindo gravar as informações nos campos antigos e novos enquanto ambos coexistem.
+
+Essa estratégia permite realizar a transição da estrutura do banco de dados de forma gradual, preservando os dados durante a migração.
 
 Para executar todas as migrações:
 
@@ -150,6 +156,7 @@ Os testes verificam, entre outros casos:
 - Acúmulo de descontos.
 - Operações de gravação e consulta no banco de dados.
 - Dual Write durante a etapa Expand.
+- Utilização de SQLite em memória compartilhada nos testes de integração.
 
 ## 9. Logs e observabilidade
 
@@ -189,4 +196,6 @@ Foi criada a branch `demonstracao-pr` para demonstrar o processo de revisão e i
 
 O Pull Request permite comparar as alterações realizadas com a branch `main` e verificar a execução automática dos testes pelo GitHub Actions antes da integração.
 
-**Pull Request:** https://github.com/mabegemeassantos-gif/trabalho_devops/pull/1
+**Pull Request:**
+
+https://github.com/mabegemeassantos-gif/trabalho_devops/pull/1
