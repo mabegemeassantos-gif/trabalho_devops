@@ -1,3 +1,4 @@
+
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
@@ -13,7 +14,12 @@ if config.config_file_name is not None:
 
 # Caminho do banco de dados SQLite
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DB_PATH = os.path.join(BASE_DIR, "sistema.db")
+
+# Permite escolher um banco de teste sem alterar o banco principal
+DB_PATH = os.environ.get(
+    "ALEMBIC_DB_PATH",
+    os.path.join(BASE_DIR, "sistema.db")
+)
 
 config.set_main_option(
     "sqlalchemy.url",
